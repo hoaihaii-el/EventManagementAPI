@@ -14,9 +14,6 @@ class EventController extends Controller
 
     private $relations = ['user', 'attendees', 'attendees.user'];
 
-    /**
-     * Display a listing of the resource.
-     */
     public function index()
     {
         $query = $this->loadRelationships(Event::query(), $relations);
@@ -25,11 +22,6 @@ class EventController extends Controller
             $query->latest()->paginate());
     }
 
-    
-
-    /**
-     * Store a newly created resource in storage.
-     */
     public function store(Request $request)
     {
         $event = Event::create([
@@ -39,24 +31,18 @@ class EventController extends Controller
                 'start_time' => 'required|date',
                 'end_time' => 'required|date|after:start_time',
             ]),
-            'user_id' => 1,
+            'user_id' => $request->user()->id,
         ]);
 
         return new EventResource($event);
     }
 
-    /**
-     * Display the specified resource.
-     */
     public function show(Event $event)
     {
         $event->load('user', 'attendees');
         return new EventResource($event);
     }
 
-    /**
-     * Update the specified resource in storage.
-     */
     public function update(Request $request, Event $event)
     {
         $event->update($request->validate([
